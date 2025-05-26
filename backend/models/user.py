@@ -1,5 +1,12 @@
 from datetime import datetime
-from backend.app import db
+from flask_sqlalchemy import SQLAlchemy
+
+# Ne pas importer db ici, il sera injecté
+db = None
+
+def init_db(database):
+    global db
+    db = database
 
 class User(db.Model):
     __tablename__ = 'users'
@@ -37,4 +44,4 @@ class User(db.Model):
         }
     
     def __repr__(self):
-        return f''
+        return f'<User {self.email}>'

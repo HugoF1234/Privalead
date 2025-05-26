@@ -1,5 +1,12 @@
 from datetime import datetime
-from backend.app import db
+from flask_sqlalchemy import SQLAlchemy
+
+# Ne pas importer db ici, il sera injecté
+db = None
+
+def init_db(database):
+    global db
+    db = database
 
 class Post(db.Model):
     __tablename__ = 'posts'
@@ -9,8 +16,8 @@ class Post(db.Model):
     published_at = db.Column(db.DateTime, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     scheduled = db.Column(db.Boolean, default=False)
-    linkedin_post_id = db.Column(db.String(100))  # ID du post LinkedIn
-    status = db.Column(db.String(20), default='draft')  # draft, scheduled, published, failed
+    linkedin_post_id = db.Column(db.String(100))
+    status = db.Column(db.String(20), default='draft')
     
     # Métriques (simulées pour la démo)
     likes_count = db.Column(db.Integer, default=0)
@@ -37,4 +44,4 @@ class Post(db.Model):
         }
     
     def __repr__(self):
-        return f''
+        return f'<Post {self.id}>'
