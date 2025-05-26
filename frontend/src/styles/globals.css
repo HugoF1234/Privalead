@@ -1,0 +1,49 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --primary: #0a66c2;
+  --primary-dark: #004182;
+  --secondary: #f3f2ef;
+  --text-dark: #191919;
+  --text-light: #666666;
+  --success: #057642;
+  --danger: #cc1016;
+  --grey-light: #f3f2ef;
+  --grey: #e0e0e0;
+  --border: #e0e0e0;
+  --white: #ffffff;
+  --shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: var(--secondary);
+  color: var(--text-dark);
+  line-height: 1.5;
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Scrollbar personnalisée */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
