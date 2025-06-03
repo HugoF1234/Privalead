@@ -211,6 +211,21 @@ def get_user_profile():
         'country': 'FR'
     })
 
+
+@app.route('/api')
+def api_root():
+    return jsonify({
+        'message': 'LinkedBoost API',
+        'version': '1.0.0',
+        'status': 'healthy',
+        'endpoints': {
+            'health': '/api/health',
+            'auth': '/api/auth/status',
+            'posts': '/api/posts',
+            'users': '/api/users/profile'
+        }
+    })
+
 @app.route('/api/users/stats')
 def get_user_stats():
     logger.info("📊 Stats demandées")
