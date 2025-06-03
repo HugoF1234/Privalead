@@ -345,6 +345,23 @@ def internal_error(error):
     logger.error(f"Erreur 500: {str(error)}")
     return jsonify({'error': 'Internal server error'}), 500
 
+@app.route('/')
+def index():
+    return jsonify({
+        'message': 'LinkedBoost API is running!',
+        'version': '1.0.0',
+        'status': 'healthy',
+        'documentation': {
+            'health': '/api/health',
+            'auth': '/api/auth/status',
+            'posts': '/api/posts',
+            'users': '/api/users/profile',
+            'stats': '/api/users/stats',
+            'news': '/api/news'
+        },
+        'frontend': 'https://privalead-1.onrender.com'
+    })
+
 if __name__ == '__main__':
     # Créer les tables si elles n'existent pas
     with app.app_context():
