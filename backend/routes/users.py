@@ -1,6 +1,6 @@
 from flask import Blueprint, request, session, jsonify
-from backend.models.user import User
-from backend.app import db
+from models.user import User
+from app import db
 import logging
 
 logger = logging.getLogger(__name__)
