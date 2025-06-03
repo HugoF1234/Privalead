@@ -1,6 +1,14 @@
 // services/api.js - Service principal pour communiquer avec l'API Flask
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+// Configuration dynamique de l'URL API
+const getApiBaseUrl = () => {
+  if (process.env.NODE_ENV === 'production') {
+    return process.env.REACT_APP_API_URL || 'https://linkedboost-backend.onrender.com/api';
+  }
+  return process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 class ApiService {
   
@@ -10,33 +18,58 @@ class ApiService {
     const config = {
       headers: {
         'Content-Type': 'application/json',
+        'Accept': 'application/json',
         ...options.headers,
       },
       credentials: 'include', // Important pour les sessions Flask
+      mode: 'cors', // Explicitement demander CORS
       ...options,
     };
 
     try {
-      console.log(`API Request: ${config.method || 'GET'} ${url}`);
+      console.log(`🔄 API Request: ${config.method || 'GET'} ${url}`);
+      
       const response = await fetch(url, config);
       
+      console.log(`📡 Response Status: ${response.status} ${response.statusText}`);
+      
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || `HTTP ${response.status}`);
+        let errorMessage = `HTTP ${response.status}`;
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorMessage;
+        } catch (e) {
+          // Si on ne peut pas parser la réponse JSON
+          errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+        }
+        throw new Error(errorMessage);
       }
       
       const data = await response.json();
-      console.log(`API Response: ${endpoint}`, data);
+      console.log(`✅ API Response: ${endpoint}`, data);
       return data;
     } catch (error) {
-      console.error(`API Error [${endpoint}]:`, error);
+      console.error(`❌ API Error [${endpoint}]:`, error);
+      
+      // Gestion spécifique des erreurs CORS
+      if (error.message.includes('NetworkError') || error.message.includes('CORS')) {
+        throw new Error('Erreur de connexion. Vérifiez votre connexion internet.');
+      }
+      
       throw error;
     }
   }
 
-  // Test de connexion
+  // Test de connexion avec retry
   async healthCheck() {
-    return this.request('/health');
+    try {
+      return await this.request('/health');
+    } catch (error) {
+      console.warn('Premier test de connexion échoué, nouvelle tentative...');
+      // Retry une fois après 1 seconde
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      return await this.request('/health');
+    }
   }
 
   // PROFIL UTILISATEUR
@@ -98,3 +131,7 @@ class ApiService {
 }
 
 export const apiService = new ApiService();
+
+// Export pour debug
+window.API_BASE_URL = API_BASE_URL;
+console.log('🔗 API Base URL:', API_BASE_URL);
