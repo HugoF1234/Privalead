@@ -1,6 +1,6 @@
 from flask import Blueprint, request, session, jsonify
-from backend.models.user import User
-from backend.services.news_service import NewsService
+from models import User, Post
+from services import GeminiService
 import logging
 
 logger = logging.getLogger(__name__)
