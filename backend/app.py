@@ -16,14 +16,20 @@ app = Flask(__name__)
 
 # Configuration CORS
 CORS(app, 
-     origins=os.getenv('CORS_ORIGINS', 'http://localhost:3000').split(','),
+     origins=[
+         'https://linkedboost-frontend.onrender.com',
+         'https://privalead-1.onrender.com',  # Si c'est le nom de votre frontend
+         'http://localhost:3000',
+         'http://127.0.0.1:3000'
+     ],
      supports_credentials=True,
-     allow_headers=['Content-Type', 'Authorization'],
+     allow_headers=['Content-Type', 'Authorization', 'Accept'],
      methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'])
 
 # Configuration base de données
 DATABASE_URL = os.getenv('DATABASE_URL')
 if DATABASE_URL:
+    # Correction pour PostgreSQL sur Render
     if DATABASE_URL.startswith('postgres://'):
         DATABASE_URL = DATABASE_URL.replace('postgres://', 'postgresql://', 1)
     app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
@@ -152,10 +158,30 @@ Et vous, comment abordez-vous ce sujet ? 🤔
 #Réflexion #Partage #{sector.capitalize()}"""
 
 # Routes API
+# Route de test CORS
+@app.after_request
+def after_request(response):
+    """Ajout des headers CORS explicites"""
+    origin = request.headers.get('Origin')
+    if origin in [
+        'https://linkedboost-frontend.onrender.com',
+        'https://privalead-1.onrender.com', 
+        'http://localhost:3000',
+        'http://127.0.0.1:3000'
+    ]:
+        response.headers.add('Access-Control-Allow-Origin', origin)
+    
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization,Accept')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
+    response.headers.add('Access-Control-Allow-Credentials', 'true')
+    return response
+
+# Routes API
 @app.route('/api/health')
 def health_check():
     """Route de santé pour vérifier que l'API fonctionne"""
     try:
+        # Test base de données
         db.session.execute('SELECT 1')
         db_status = 'connected'
     except Exception as e:
@@ -169,9 +195,9 @@ def health_check():
         'timestamp': datetime.utcnow().isoformat(),
         'version': '1.0.0',
         'message': 'LinkedBoost API is running perfectly!',
-        'cors': 'enabled'
+        'cors': 'enabled',
+        'environment': os.getenv('FLASK_ENV', 'development')
     })
-
 # Routes d'authentification
 @app.route('/api/auth/status')
 def auth_status():
