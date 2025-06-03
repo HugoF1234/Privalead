@@ -1,9 +1,9 @@
 from flask import Blueprint, request, session, jsonify
-from backend.models.user import User
-from backend.models.post import Post
-from backend.app import db
-from backend.services.linkedin_service import LinkedInService
-from backend.services.gemini_service import GeminiService
+from models.user import User
+from models.post import Post
+from app import db
+from services.linkedin_service import LinkedInService
+from services.gemini_service import GeminiService
 from datetime import datetime
 import logging
 
