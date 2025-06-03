@@ -1,13 +1,11 @@
+# backend/app.py - Version corrigée pour Render
+
 import os
 from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from datetime import datetime
 import logging
-from routes import register_blueprints
-from models import User, Post
-from services import GeminiService, LinkedInService, NewsService
-
 
 # Configuration du logging
 logging.basicConfig(level=logging.INFO)
@@ -38,7 +36,7 @@ app.secret_key = os.getenv('SECRET_KEY', 'dev-secret-key-change-in-production')
 # Initialisation extensions
 db = SQLAlchemy(app)
 
-# Modèles définis directement ici
+# Modèles de données
 class User(db.Model):
     __tablename__ = 'users'
     
@@ -99,12 +97,65 @@ class Post(db.Model):
             'views': self.views_count
         }
 
-# Routes de base
+# Service de génération IA (simulation)
+class GeminiService:
+    def __init__(self):
+        self.simulation_mode = True  # Mode simulation pour Render
+    
+    def generate_from_prompt(self, prompt, tone="professionnel", sector="general"):
+        logger.info(f"🤖 Génération simulée: {prompt[:50]}...")
+        
+        if tone == "inspirant":
+            return f"""✨ {prompt} - Une réflexion qui m'inspire aujourd'hui.
+
+Dans notre monde en constante évolution, il est essentiel de garder une longueur d'avance.
+
+Mes 3 clés pour réussir :
+🎯 Vision claire et objectifs définis
+🚀 Action constante, même par petits pas
+🤝 Collaboration et partage d'expériences
+
+L'innovation naît souvent de la simplicité et de l'audace.
+
+Et vous, quelle est votre approche pour transformer les défis en opportunités ?
+
+#Innovation #Leadership #{sector.capitalize()}"""
+        
+        elif tone == "professionnel":
+            return f"""📊 Analyse : {prompt}
+
+D'après mon expérience dans le secteur {sector}, voici les enjeux clés :
+
+• Adaptation aux nouvelles technologies
+• Optimisation des processus existants  
+• Développement des compétences équipes
+• Mesure de l'impact et ROI
+
+La réussite réside dans l'équilibre entre innovation et pragmatisme.
+
+Quelles sont vos meilleures pratiques dans ce domaine ?
+
+#Stratégie #Performance #{sector.capitalize()}"""
+        
+        else:
+            return f"""💭 Réflexion du jour : {prompt}
+
+Dans notre quotidien professionnel, on oublie parfois l'essentiel :
+✅ Prendre le temps de la réflexion
+✅ Échanger avec ses pairs
+✅ Tester et itérer rapidement
+
+Parfois, les meilleures idées viennent des conversations les plus simples.
+
+Et vous, comment abordez-vous ce sujet ? 🤔
+
+#Réflexion #Partage #{sector.capitalize()}"""
+
+# Routes API
 @app.route('/api/health')
 def health_check():
     """Route de santé pour vérifier que l'API fonctionne"""
     try:
-        # Test de connexion à la base de données
         db.session.execute('SELECT 1')
         db_status = 'connected'
     except Exception as e:
@@ -124,9 +175,7 @@ def health_check():
 # Routes d'authentification
 @app.route('/api/auth/status')
 def auth_status():
-    """Vérifier le statut d'authentification"""
-    logger.info("📱 Statut d'auth demandé depuis React")
-    # Pour la démo, on retourne un utilisateur connecté
+    logger.info("📱 Statut d'auth demandé")
     return jsonify({
         'authenticated': True,
         'user': {
@@ -144,14 +193,12 @@ def auth_status():
 
 @app.route('/api/auth/logout', methods=['POST'])
 def logout():
-    """Déconnexion"""
     return jsonify({'message': 'Logged out successfully'})
 
 # Routes utilisateur
 @app.route('/api/users/profile')
 def get_user_profile():
-    """Récupérer le profil utilisateur"""
-    logger.info("📱 Profile demandé depuis React")
+    logger.info("📱 Profile demandé")
     return jsonify({
         'id': 1,
         'firstName': 'Hugo',
@@ -164,32 +211,9 @@ def get_user_profile():
         'country': 'FR'
     })
 
-@app.route('/api/users/profile', methods=['PUT'])
-def update_user_profile():
-    """Mettre à jour le profil utilisateur"""
-    data = request.get_json()
-    logger.info(f"📝 Mise à jour du profil: {data}")
-    
-    return jsonify({
-        'success': True,
-        'message': 'Profil mis à jour avec succès',
-        'user': {
-            'id': 1,
-            'firstName': 'Hugo',
-            'lastName': 'Founder',
-            'email': 'hugo@linkedboost.com',
-            'sector': data.get('sector', 'tech'),
-            'interests': data.get('interests', ['IA', 'Développement', 'Innovation']),
-            'picture': None,
-            'language': 'fr',
-            'country': 'FR'
-        }
-    })
-
 @app.route('/api/users/stats')
 def get_user_stats():
-    """Récupérer les statistiques utilisateur"""
-    logger.info("📊 Stats demandées depuis React")
+    logger.info("📊 Stats demandées")
     import random
     return jsonify({
         'totalPosts': random.randint(10, 25),
@@ -201,8 +225,7 @@ def get_user_stats():
 # Routes des posts
 @app.route('/api/posts')
 def get_posts():
-    """Récupérer tous les posts"""
-    logger.info("📝 Posts demandés depuis React")
+    logger.info("📝 Posts demandés")
     return jsonify({
         'posts': [
             {
@@ -226,25 +249,13 @@ def get_posts():
                 'comments': 5,
                 'shares': 2,
                 'views': 98
-            },
-            {
-                'id': 3,
-                'content': '🎯 Comment j\'ai doublé mon engagement en 3 mois...',
-                'publishedAt': '2025-01-18T09:45:00',
-                'scheduled': False,
-                'status': 'published',
-                'likes': 42,
-                'comments': 12,
-                'shares': 7,
-                'views': 234
             }
         ]
     })
 
 @app.route('/api/posts/scheduled')
 def get_scheduled_posts():
-    """Récupérer les posts programmés"""
-    logger.info("⏰ Posts programmés demandés depuis React")
+    logger.info("⏰ Posts programmés demandés")
     return jsonify({
         'scheduledPosts': [
             {
@@ -253,85 +264,20 @@ def get_scheduled_posts():
                 'publishedAt': '2025-06-04T08:00:00',
                 'scheduled': True,
                 'status': 'scheduled'
-            },
-            {
-                'id': 5,
-                'content': '📈 Analyse des tendances du marché tech pour ce trimestre',
-                'publishedAt': '2025-06-05T10:30:00',
-                'scheduled': True,
-                'status': 'scheduled'
             }
         ]
     })
 
 @app.route('/api/posts/generate', methods=['POST'])
 def generate_post():
-    """Générer un post avec l'IA"""
     data = request.get_json()
     prompt = data.get('prompt', '')
     tone = data.get('tone', 'professionnel')
     
-    logger.info(f"🤖 Génération de post: {prompt[:50]}... (ton: {tone})")
+    logger.info(f"🤖 Génération de post: {prompt[:50]}...")
     
-    # Simulation de génération IA
-    import time
-    time.sleep(1)  # Simuler le temps de traitement
-    
-    # Exemples de posts générés selon le prompt
-    sample_drafts = {
-        'leadership': """🎯 Le leadership moderne ne se résume plus à donner des ordres.
-
-Après 5 ans de management d'équipe, voici ce que j'ai appris :
-
-✨ Écoutez plus que vous ne parlez
-🤝 Donnez du sens avant de donner des tâches  
-🚀 Célébrez les échecs autant que les succès
-💡 Investissez dans les personnes, pas seulement les projets
-
-Un leader inspire. Un manager contrôle. 
-Soyez celui qui élève les autres.
-
-Et vous, quelle leçon de leadership a transformé votre approche ?
-
-#Leadership #Management #Innovation""",
-        
-        'innovation': """🚀 L'innovation ne naît pas dans les salles de réunion.
-
-Elle émerge quand on :
-• Remet en question l'évidence
-• Écoute les clients "difficiles" 
-• Échoue vite pour apprendre plus vite
-• Connecte des idées en apparence incompatibles
-
-Le secret ? Arrêter de chercher LA solution parfaite.
-Commencer par comprendre LE problème parfaitement.
-
-Quelle innovation vous a le plus marqué cette année ?
-
-#Innovation #Entrepreneuriat #Tech""",
-        
-        'default': f"""💭 Réflexion du jour sur : {prompt}
-
-Dans un monde en constante évolution, il est crucial de rester adaptable et d'embrasser le changement.
-
-Voici mes 3 conseils pour naviguer dans cette transformation :
-
-1️⃣ Cultivez une mentalité de croissance
-2️⃣ Investissez dans l'apprentissage continu  
-3️⃣ Construisez des relations authentiques
-
-Et vous, comment vous adaptez-vous aux changements de votre secteur ? 💭
-
-#Croissance #Innovation #LinkedIn"""
-    }
-    
-    # Choisir le draft selon le prompt
-    if 'leadership' in prompt.lower() or 'manager' in prompt.lower():
-        draft = sample_drafts['leadership']
-    elif 'innovation' in prompt.lower() or 'tech' in prompt.lower():
-        draft = sample_drafts['innovation']
-    else:
-        draft = sample_drafts['default']
+    gemini = GeminiService()
+    draft = gemini.generate_from_prompt(prompt, tone)
     
     return jsonify({
         'success': True,
@@ -340,129 +286,36 @@ Et vous, comment vous adaptez-vous aux changements de votre secteur ? 💭
 
 @app.route('/api/posts/publish', methods=['POST'])
 def publish_post():
-    """Publier ou programmer un post"""
     data = request.get_json()
     content = data.get('content', '')
-    publish_time = data.get('publishTime')
     publish_now = data.get('publishNow', False)
     
-    logger.info(f"📤 Publication de post: {len(content)} caractères")
-    
-    # Simulation de publication
-    import time
-    time.sleep(0.5)
+    logger.info(f"📤 Publication simulée: {len(content)} caractères")
     
     if publish_now:
         return jsonify({
             'success': True,
             'message': 'Post publié avec succès !',
-            'post': {
-                'id': 999,
-                'content': content,
-                'publishedAt': datetime.utcnow().isoformat(),
-                'status': 'published'
-            }
         })
     else:
         return jsonify({
             'success': True,
             'message': 'Post programmé avec succès !',
-            'post': {
-                'id': 998,
-                'content': content,
-                'publishedAt': publish_time,
-                'status': 'scheduled'
-            }
         })
-
-@app.route('/api/posts/<int:post_id>', methods=['DELETE'])
-def delete_post(post_id):
-    """Supprimer un post"""
-    logger.info(f"🗑️ Suppression du post {post_id}")
-    
-    return jsonify({
-        'success': True,
-        'message': 'Post supprimé avec succès'
-    })
 
 # Routes des actualités
 @app.route('/api/news')
 def get_news():
-    """Récupérer les actualités"""
-    keyword = request.args.get('keyword', '')
-    language = request.args.get('language', 'fr')
-    
-    logger.info(f"📰 News demandées: keyword={keyword}, lang={language}")
-    
-    # Simulation d'articles d'actualité
-    sample_articles = [
-        {
-            'id': 1,
-            'title': 'L\'IA révolutionne le marketing digital',
-            'description': 'Les nouvelles technologies d\'intelligence artificielle transforment la façon dont les entreprises approchent le marketing digital...',
-            'source': 'TechCrunch',
-            'date': '2025-06-03',
-            'url': 'https://example.com/article1',
-            'urlToImage': None
-        },
-        {
-            'id': 2,
-            'title': 'LinkedIn lance de nouvelles fonctionnalités pour les créateurs',
-            'description': 'La plateforme professionnelle annonce des outils avancés pour aider les créateurs de contenu...',
-            'source': 'Les Échos',
-            'date': '2025-06-02',
-            'url': 'https://example.com/article2',
-            'urlToImage': None
-        },
-        {
-            'id': 3,
-            'title': 'Le télétravail redéfinit les stratégies RH',
-            'description': 'Comment les entreprises adaptent leurs politiques de ressources humaines à l\'ère du travail hybride...',
-            'source': 'Harvard Business Review',
-            'date': '2025-06-01',
-            'url': 'https://example.com/article3',
-            'urlToImage': None
-        }
-    ]
-    
-    # Filtrer selon le mot-clé
-    if keyword:
-        filtered_articles = [
-            article for article in sample_articles 
-            if keyword.lower() in article['title'].lower() or keyword.lower() in article['description'].lower()
-        ]
-        articles = filtered_articles if filtered_articles else sample_articles[:1]
-    else:
-        articles = sample_articles
-    
+    logger.info("📰 News demandées")
     return jsonify({
-        'articles': articles
-    })
-
-@app.route('/api/news/trending')
-def get_trending_news():
-    """Récupérer les actualités tendance"""
-    logger.info("📊 Trending news demandées")
-    
-    return jsonify({
-        'trending': [
+        'articles': [
             {
                 'id': 1,
-                'title': 'Intelligence Artificielle',
-                'growth': '+34%',
-                'category': 'tech'
-            },
-            {
-                'id': 2,
-                'title': 'Leadership',
-                'growth': '+28%',
-                'category': 'management'
-            },
-            {
-                'id': 3,
-                'title': 'Innovation',
-                'growth': '+22%',
-                'category': 'business'
+                'title': 'L\'IA révolutionne le marketing digital',
+                'description': 'Les nouvelles technologies d\'intelligence artificielle transforment la façon dont les entreprises approchent le marketing digital...',
+                'source': 'TechCrunch',
+                'date': '2025-06-03',
+                'url': 'https://example.com/article1'
             }
         ]
     })
@@ -477,22 +330,6 @@ def internal_error(error):
     logger.error(f"Erreur 500: {str(error)}")
     return jsonify({'error': 'Internal server error'}), 500
 
-# Route catch-all pour servir le frontend React en mode production
-@app.route('/', defaults={'path': ''})
-@app.route('/<path:path>')
-def catch_all(path):
-    """Servir l'application React pour toutes les routes non-API"""
-    if path.startswith('api/'):
-        return jsonify({'error': 'API endpoint not found'}), 404
-    
-    # En production, cette route ne devrait pas être appelée
-    # car le frontend sera servi par Render Static Sites
-    return jsonify({
-        'message': 'LinkedBoost API is running',
-        'version': '1.0.0',
-        'docs': '/api/health'
-    })
-
 if __name__ == '__main__':
     # Créer les tables si elles n'existent pas
     with app.app_context():
@@ -503,9 +340,5 @@ if __name__ == '__main__':
             logger.error(f"❌ Erreur base de données: {e}")
     
     port = int(os.environ.get('PORT', 5000))
-    
     logger.info(f"🚀 LinkedBoost API démarrant sur le port {port}")
-    logger.info(f"🌐 CORS configuré")
-    logger.info(f"🔗 Test API: http://localhost:{port}/api/health")
-    
     app.run(host='0.0.0.0', port=port, debug=False)
