@@ -2,7 +2,7 @@ from flask import Blueprint, request, session, jsonify, redirect, url_for
 from urllib.parse import urlencode
 import requests
 import os
-from backend.models.user import User
+from models.user import User
 from backend.app import db
 import logging
 
