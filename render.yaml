@@ -1,3 +1,4 @@
+# render.yaml - Configuration de déploiement mise à jour
 services:
   # Base de données PostgreSQL
   - type: pserv
@@ -6,7 +7,7 @@ services:
     databaseName: linkedboost_db
     user: linkedboost_user
 
-  # Backend API Flask
+  # Backend API Flask mis à jour
   - type: web
     name: linkedboost-backend
     env: python
@@ -28,17 +29,17 @@ services:
         value: "86occjps58doir"
       - key: LINKEDIN_CLIENT_SECRET
         value: "WPL_AP1.C8C6uXjTbpJyQUx2.Y7COPg=="
+      - key: LINKEDIN_REDIRECT_URI
+        value: "https://privalead-1.onrender.com/auth/linkedin/callback"
       - key: GEMINI_API_KEY
         value: "AIzaSyB434P__wR_o_rr5Q3PjOULqyKhMANRtgk"
       - key: NEWS_API_KEY
         value: "2cc0499903c24433a7646123cb3a82e0"
       - key: CORS_ORIGINS
-        value: "https://linkedboost-frontend.onrender.com,https://privalead-1.onrender.com,http://localhost:3000"
-      - key: FRONTEND_URL
-        value: "https://linkedboost-frontend.onrender.com"
+        value: "https://privalead-1.onrender.com,http://localhost:3000"
     healthCheckPath: "/api/health"
 
-  # Frontend React
+  # Frontend React mis à jour
   - type: web
     name: linkedboost-frontend
     env: static
@@ -52,6 +53,10 @@ services:
         value: "https://linkedboost-backend.onrender.com/api"
       - key: REACT_APP_ENVIRONMENT
         value: "production"
+      - key: REACT_APP_LINKEDIN_CLIENT_ID
+        value: "86occjps58doir"
+      - key: REACT_APP_LINKEDIN_REDIRECT_URI
+        value: "https://privalead-1.onrender.com/auth/linkedin/callback"
     routes:
       - type: rewrite
         source: "/*"
