@@ -8,7 +8,7 @@ import PostGenerator from './components/PostGenerator';
 import AnalyticsDashboard from './components/AnalyticsDashboard';
 import ModernCalendar from './components/ModernCalendar';
 import LinkedInDashboard from './components/LinkedIn/LinkedInDashboard';
-import PostGenerator from './components/LinkedIn/PostGenerator';
+import LinkedInPostGenerator from './components/LinkedIn/PostGenerator';
 
 
 const ModernLinkedBoostApp = () => {
