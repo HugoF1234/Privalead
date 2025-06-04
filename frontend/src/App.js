@@ -93,8 +93,6 @@ const ModernLinkedBoostApp = () => {
         return <SettingsView />;
       case 'linkedin':
         return <LinkedInDashboard user={user} />;
-      case 'linkedin-create':
-        return <PostGenerator onPublish={() => setCurrentView('linkedin')} />;
       default:
         return <ModernDashboard user={user} />;
     }
