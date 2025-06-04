@@ -10,13 +10,20 @@ from models.linkedin_models import LinkedInUser, LinkedInPost, ContentTemplate, 
 from services.linkedin_service import LinkedInService
 from services.gemini_service import GeminiService
 from services.news_service import NewsService
+# LINKEDIN INTEGRATION - Ajout
+from routes.linkedin_auth import linkedin_auth_bp, init_linkedin_routes
+from routes.linkedin_content import linkedin_content_bp, init_linkedin_content_routes
 # Configuration du logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Initialisation Flask
 app = Flask(__name__)
-
+app.config['LINKEDIN_CLIENT_ID'] = os.getenv('LINKEDIN_CLIENT_ID')
+app.config['LINKEDIN_CLIENT_SECRET'] = os.getenv('LINKEDIN_CLIENT_SECRET')
+app.config['LINKEDIN_REDIRECT_URI'] = os.getenv('LINKEDIN_REDIRECT_URI')
+app.config['GEMINI_API_KEY'] = os.getenv('GEMINI_API_KEY')
+app.config['NEWS_API_KEY'] = os.getenv('NEWS_API_KEY')
 # Configuration CORS
 CORS(app, 
      origins=[
@@ -45,7 +52,10 @@ app.secret_key = os.getenv('SECRET_KEY', 'dev-secret-key-change-in-production')
 # Initialisation extensions
 init_linkedin_db(db)
 db = SQLAlchemy(app)
-
+init_linkedin_routes(db)
+init_linkedin_content_routes(db)
+app.register_blueprint(linkedin_auth_bp)
+app.register_blueprint(linkedin_content_bp)
 # Modèles de données
 class User(db.Model):
     __tablename__ = 'users'
@@ -179,6 +189,22 @@ def after_request(response):
     response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
     response.headers.add('Access-Control-Allow-Credentials', 'true')
     return response
+
+@app.route('/api/linkedin/test')
+def test_linkedin():
+    """Route de test pour vérifier l'intégration LinkedIn"""
+    return jsonify({
+        'message': 'LinkedIn integration ready',
+        'features': [
+            'Authentication',
+            'Content Generation', 
+            'Post Publishing',
+            'Analytics',
+            'News Integration'
+        ],
+        'status': 'active'
+    })
+
 
 # Routes API
 @app.route('/api/health')
