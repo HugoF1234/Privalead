@@ -79,6 +79,8 @@ const ModernLinkedBoostApp = () => {
             <PostGenerator />
           </div>
         );
+      case 'linkedin-create':
+        return <LinkedInPostGenerator onPublish={() => setCurrentView('linkedin')} />;
       case 'analytics':
         return <AnalyticsDashboard />;
       case 'calendar':
