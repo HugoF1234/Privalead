@@ -6,7 +6,10 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from datetime import datetime
 import logging
-
+from models.linkedin_models import LinkedInUser, LinkedInPost, ContentTemplate, init_linkedin_db
+from services.linkedin_service import LinkedInService
+from services.gemini_service import GeminiService
+from services.news_service import NewsService
 # Configuration du logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -40,6 +43,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = os.getenv('SECRET_KEY', 'dev-secret-key-change-in-production')
 
 # Initialisation extensions
+init_linkedin_db(db)
 db = SQLAlchemy(app)
 
 # Modèles de données
