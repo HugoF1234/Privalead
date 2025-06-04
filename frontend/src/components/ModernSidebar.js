@@ -18,6 +18,13 @@ const ModernSidebar = ({ currentView, setCurrentView, user, collapsed, onToggle 
       badge: null
     },
     { 
+      id: 'linkedin', 
+      icon: () => <i className="fab fa-linkedin"></i>, 
+      label: 'LinkedIn', 
+      color: 'from-blue-600 to-blue-700',
+      badge: 'NEW'
+    },
+    { 
       id: 'create', 
       icon: Plus, 
       label: 'Créer', 
