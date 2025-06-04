@@ -7,6 +7,9 @@ import ModernDashboard from './components/ModernDashboard';
 import PostGenerator from './components/PostGenerator';
 import AnalyticsDashboard from './components/AnalyticsDashboard';
 import ModernCalendar from './components/ModernCalendar';
+import LinkedInDashboard from './components/LinkedIn/LinkedInDashboard';
+import PostGenerator from './components/LinkedIn/PostGenerator';
+
 
 const ModernLinkedBoostApp = () => {
   const [currentView, setCurrentView] = useState('dashboard');
@@ -86,6 +89,10 @@ const ModernLinkedBoostApp = () => {
         return <HistoryView />;
       case 'settings':
         return <SettingsView />;
+      case 'linkedin':
+        return <LinkedInDashboard user={user} />;
+      case 'linkedin-create':
+        return <PostGenerator onPublish={() => setCurrentView('linkedin')} />;
       default:
         return <ModernDashboard user={user} />;
     }
